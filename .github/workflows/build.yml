@@ -1,0 +1,84 @@
+name: Build
+
+on:
+  push:
+    branches:
+        - master
+    tags:
+        - "v*"
+        
+
+jobs:
+    windows-build:
+      runs-on: windows-latest
+      strategy:
+        matrix:
+            python-versions: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+
+      steps:
+        - uses: actions/checkout@v4
+
+        - name: Clone FaceSDK
+          uses: actions/checkout@v4
+          with:
+            repository: 3DiVi/face-sdk
+            path: FaceSDK
+
+        - name: Remove other files from FaceSDK
+          shell: bash
+          working-directory: FaceSDK
+          run: |
+              mv include ../includeFaceSDK
+              rm -rf *
+              mv ../includeFaceSDK ./include
+
+        - name: Install Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: "${{ matrix.python-versions }}"
+
+        - name: Install build
+          run: pip install build
+
+        - name: Build
+          shell: cmd
+          run: python -m build
+
+        - name: Upload artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ matrix.python-versions }}-windows
+            path: dist\*.whl
+
+
+    linux-build:
+      runs-on: ubuntu-latest
+
+      steps:
+        - uses: actions/checkout@v4
+
+        - name: Clone FaceSDK
+          uses: actions/checkout@v4
+          with:
+            repository: 3DiVi/face-sdk
+            path: FaceSDK
+
+        - name: Remove other files from FaceSDK
+          shell: bash
+          working-directory: FaceSDK
+          run: |
+              mv include ../includeFaceSDK
+              rm -rf *
+              mv ../includeFaceSDK ./include
+
+        - name: Install build
+          run: pip install build
+
+        - name: Build
+          run: python3 -m build
+
+        - name: Upload artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: linux
+            path: dist/*.tar.gz
