@@ -16,7 +16,7 @@ jobs:
       runs-on: windows-latest
       strategy:
         matrix:
-            python-versions: [38, 39, 310, 311, 312, 313]
+            python-versions: [[38, 3.8], [39, 3.9], [310, 3.10], [311, 3.11], [312, 3.12], [313, 3.13]]
 
       steps:
         - uses: actions/checkout@v4
@@ -37,16 +37,14 @@ jobs:
               mv ../includeFaceSDK ./include
 
         - name: Install Python
-          run: |
-              choco install python${{ matrix.python-versions }} -y
-              refreshenv
+          run: choco install python${{ matrix.python-versions[0] }} -y
 
         - name: Install build
-          run: pip install build
+          run: python${{ matrix.python-versions[1] }} -m pip install build
 
         - name: Build
           shell: cmd
-          run: python -m build
+          run: python${{ matrix.python-versions[1] }} -m build
 
         - name: Upload artifacts
           uses: actions/upload-artifact@v4
