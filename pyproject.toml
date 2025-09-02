@@ -1,7 +1,7 @@
 [build-system]
 requires = [
   "scikit-build-core[pyproject]",
-  "numpy==1.26.4"
+  "numpy<=1.26.4"
 ]
 build-backend = "scikit_build_core.build"
 
@@ -19,7 +19,7 @@ classifiers = [
 ]
 
 dependencies = [
-  "numpy==1.26.4"
+  "numpy<=1.26.4"
 ]
 
 [tool.scikit-build]
