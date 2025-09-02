@@ -41,6 +41,12 @@ namespace face_sdk_3divi
         implementation = FacerecService::get()->loadContextTemplate(is);
     }
 
+    ContextTemplate::ContextTemplate(const Context& config) :
+        implementation(FacerecService::get()->convertTemplate(*config))
+    {
+        
+    }
+
     ContextTemplate::ContextTemplate(py::object& binaryReadStream)
     {
         PythonInputStream inputStream(binaryReadStream);

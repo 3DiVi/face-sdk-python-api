@@ -16,6 +16,10 @@ namespace face_sdk_3divi
 
         ProcessingBlock(const py::dict& dict);
 
+        ProcessingBlock(ProcessingBlock&& other) = default;
+
+        ProcessingBlock& operator =(ProcessingBlock&& other) = default;
+
         void operator ()(Context& config);
 
         ~ProcessingBlock() = default;

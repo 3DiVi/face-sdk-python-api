@@ -14,9 +14,6 @@ PYBIND11_MODULE(face_sdk_3divi, m, py::mod_gil_not_used())
 
     m.doc() = "face_sdk_3divi plugin";
 
-    py::class_<face_sdk_3divi::FacerecService>(m, "FacerecService")
-        .def_static("create_service", &face_sdk_3divi::FacerecService::createService, "dll_path"_a, "facerec_conf_dir"_a, "license_dir"_a, py::call_guard<py::gil_scoped_release>());
-
     py::class_<face_sdk_3divi::ContextTemplate> contextTemplate(m, "ContextTemplate");
     py::class_<face_sdk_3divi::DynamicTemplateIndex> dynamicTemplateIndex(m, "DynamicTemplateIndex");
     py::class_<face_sdk_3divi::Context> context(m, "Context");
@@ -36,6 +33,8 @@ PYBIND11_MODULE(face_sdk_3divi, m, py::mod_gil_not_used())
         .def(py::init<const py::dict&>(), "ctx"_a)
         .def(py::init<const py::bytes&>(), "image_data"_a)
         .def(py::init<uint8_t*, int32_t, int32_t, face_sdk_3divi::Context::Format, int32_t>(), "frame_data"_a, "width"_a, "height"_a, "format"_a, "base_angle"_a)
+        .def(py::init<py::bytes&, int32_t, int32_t, face_sdk::Context::Format, int32_t>(), "frame_data"_a, "width"_a, "height"_a, "format"_a, "base_angle"_a)
+        .def(py::init<py::array_t<uint8_t>, int32_t, int32_t, face_sdk::Context::Format, int32_t>(), "frame_data"_a, "width"_a, "height"_a, "format"_a, "base_angle"_a)
         .def(py::init<const std::string&>(), "path_to_json_file"_a)
         .def("serialize_to_json", &face_sdk_3divi::Context::serializeToJson, py::call_guard<py::gil_scoped_release>())
         .def("contains", &face_sdk_3divi::Context::contains, py::call_guard<py::gil_scoped_release>(), "key"_a)
@@ -73,12 +72,15 @@ PYBIND11_MODULE(face_sdk_3divi, m, py::mod_gil_not_used())
         .def("__setitem__", [](face_sdk_3divi::Context& context, const std::string& key, const py::handle& value) { context[key].setValue(value); })
         .def("__getitem__", [](face_sdk_3divi::Context& context, int64_t index) { return context[index]; }, "index"_a)
         .def("__getitem__", [](face_sdk_3divi::Context& context, const std::string& key) { return context[key]; }, "key"_a)
-        .def("__contains__", [](face_sdk_3divi::Context& context, const std::string& key) { return context.contains(key); }, "key"_a);
+        .def("__contains__", [](face_sdk::Context& context, const std::string& key) { return context.contains(key); }, "key"_a)
+        .def("__iter__", &face_sdk::Context::startIterate)
+        .def("__next__", &face_sdk::Context::next);
 
     contextTemplate
         .def(py::init<const face_sdk_3divi::ContextTemplate&>(), "context_template"_a)
         .def(py::init<const py::bytes&>(), "data"_a)
         .def(py::init<py::object&>(), "binary_read_stream"_a)
+        .def(py::init<const face_sdk::Context&>(), "config"_a)
         .def("save", &face_sdk_3divi::ContextTemplate::save, "binary_write_stream"_a)
         .def("size", &face_sdk_3divi::ContextTemplate::size, py::call_guard<py::gil_scoped_release>())
         .def("get_method_name", &face_sdk_3divi::ContextTemplate::getMethodName, py::call_guard<py::gil_scoped_release>());
@@ -105,6 +107,20 @@ PYBIND11_MODULE(face_sdk_3divi, m, py::mod_gil_not_used())
         .def(py::init<const face_sdk_3divi::Context&>(), "config"_a, py::call_guard<py::gil_scoped_release>())
         .def(py::init<const py::dict&>(), "config"_a)
         .def("__call__", &face_sdk_3divi::ProcessingBlock::operator (), "io_data"_a, py::call_guard<py::gil_scoped_release>());
+
+    py::class_<face_sdk::FacerecService>(m, "FacerecService")
+        .def_static("create_service", &face_sdk::FacerecService::createService, "dll_path"_a, "facerec_conf_dir"_a, "license_dir"_a, py::call_guard<py::gil_scoped_release>(), py::return_value_policy::reference)
+        .def_static("create_context", py::overload_cast<const py::dict&>(&face_sdk::FacerecService::createContext), "ctx"_a)
+        .def_static("create_context_from_encoded_image", py::overload_cast<const py::bytes&>(&face_sdk::FacerecService::createContext), "data"_a)
+        .def_static("create_context_from_frame", py::overload_cast<py::array_t<uint8_t>, int32_t, int32_t, face_sdk::Context::Format, int32_t>(&face_sdk::FacerecService::createContext), "data"_a, "width"_a, "height"_a, "format"_a, "base_angle"_a)
+        .def_static("create_context_from_json_file", py::overload_cast<const std::string&>(&face_sdk::FacerecService::createContext), "path"_a)
+        .def_static("create_processing_block", py::overload_cast<const face_sdk::Context&>(&face_sdk::FacerecService::createProcessingBlock), "ctx"_a)
+        .def_static("create_processing_block", py::overload_cast<const py::dict&>(&face_sdk::FacerecService::createProcessingBlock), "ctx"_a)
+        .def_static("get_version", &face_sdk::FacerecService::getVersion)
+        .def_static("create_dynamic_template_index", py::overload_cast<const std::vector<face_sdk::ContextTemplate>&, const std::vector<std::string>&, const face_sdk::Context&>(&face_sdk::FacerecService::createDynamicTemplateIndex), "templates"_a, "uuids"_a, "config"_a)
+        .def_static("create_dynamic_template_index", py::overload_cast<const face_sdk::Context&>(&face_sdk::FacerecService::createDynamicTemplateIndex), "config"_a)
+        .def_static("convert_template", &face_sdk::FacerecService::convertTemplate, "config"_a)
+        .def_static("load_context_template", &face_sdk::FacerecService::loadContextTemplate, "binary_stream"_a);
 
     py::class_<pbio::Error>(m, "_ErrorImplementation")
         .def("__str__", [](const pbio::Error& error) { return py::str("0x{:x}: {}").format(error.code(), error.what()); });

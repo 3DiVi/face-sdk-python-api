@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.27.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(PYBIND11_TAG v2.13.6)
+set(PYBIND11_TAG v3.0.0)
 
 if (UNIX)
     set(PYTHON_EXECUTABLE /usr/bin/python3 CACHE STRING "Path to Python executable")
@@ -67,7 +67,7 @@ else()
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 
             COMMAND ${PYTHON_EXECUTABLE} -m venv .venv
-            COMMAND .venv/bin/python -m pip install pybind11-stubgen
+            COMMAND .venv/bin/python -m pip install pybind11-stubgen numpy
             COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/*.so ${CMAKE_BINARY_DIR}/.venv/lib/python3.${PYTHON_MINOR_VERSION}/site-packages
             COMMAND ${CMAKE_BINARY_DIR}/.venv/bin/pybind11-stubgen -o ${CMAKE_BINARY_DIR} ${PROJECT_NAME}
             COMMAND ${CMAKE_COMMAND} -E rm -rf .venv
@@ -79,7 +79,7 @@ else()
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 
             COMMAND ${PYTHON_EXECUTABLE} -m venv .venv
-            COMMAND .venv/Scripts/python -m pip install pybind11-stubgen
+            COMMAND .venv/Scripts/python -m pip install pybind11-stubgen numpy
             COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_BINARY_DIR}/.venv/Lib/site-packages
             COMMAND ${CMAKE_BINARY_DIR}/.venv/Scripts/pybind11-stubgen -o ${CMAKE_BINARY_DIR} ${PROJECT_NAME}
             COMMAND ${CMAKE_COMMAND} -E rm -rf .venv

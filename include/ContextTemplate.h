@@ -8,6 +8,8 @@ namespace py = pybind11;
 
 namespace face_sdk_3divi
 {
+    class Context;
+
     class ContextTemplate
     {
     private:
@@ -19,6 +21,8 @@ namespace face_sdk_3divi
         ContextTemplate(const py::bytes& data);
 
         ContextTemplate(py::object& binaryReadStream);
+
+        ContextTemplate(const Context& config);
 
         int32_t size() const;
 

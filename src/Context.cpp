@@ -57,10 +57,22 @@ namespace face_sdk_3divi
 
     }
 
-    Context::Context(uint8_t* data, int32_t width, int32_t height, Context::Format format, int32_t baseAngle) :
-        implementation(std::make_shared<pbio::Context>(Context::createContextFromFrame(data, width, height, format, baseAngle)))
+    Context::Context(py::bytes& data, int32_t width, int32_t height, Context::Format format, int32_t baseAngle)
     {
+        std::string_view temp = static_cast<std::string_view>(data);
+        const uint8_t* dataPtr = reinterpret_cast<const uint8_t*>(temp.data());
 
+        implementation = std::make_shared<pbio::Context>
+        (
+            Context::createContextFromFrame(const_cast<uint8_t*>(dataPtr), width, height, format, baseAngle)
+        );
+    }
+
+    Context::Context(py::array_t<uint8_t> data, int32_t width, int32_t height, Context::Format format, int32_t baseAngle)
+    {
+        py::buffer_info buffer = data.request();
+
+        implementation = std::make_shared<pbio::Context>(Context::createContextFromFrame(static_cast<uint8_t*>(buffer.ptr), width, height, format, baseAngle));
     }
 
     Context::Context(const std::string& pathToJsonFile) :
@@ -254,7 +266,7 @@ namespace face_sdk_3divi
         }
         else
         {
-            throw std::runtime_error("Unknown type: " + py::str(value.get_type()).cast<std::string>());
+            throw std::runtime_error("Unknown type: " + py::str(py::type::of(value)).cast<std::string>());
         }
     }
 
@@ -293,14 +305,14 @@ namespace face_sdk_3divi
         return (**this).getDynamicTemplateIndex();
     }
 
-    std::variant<py::handle, py::float_, ContextTemplate, DynamicTemplateIndex> Context::getValue() const
+    std::variant<std::string, py::handle, py::float_, ContextTemplate, DynamicTemplateIndex> Context::getValue() const
     {
-        std::function<std::variant<py::handle, py::float_, ContextTemplate, DynamicTemplateIndex>()> getter;
+        std::function<std::variant<std::string, py::handle, py::float_, ContextTemplate, DynamicTemplateIndex>()> getter;
         const pbio::Context& value = **this;
 
         if (value.isString())
         {
-            getter = [&value]() { return py::str(value.getString()); };
+            getter = [&value]() { return value.getString(); };
         }
         else if (value.isLong())
         {
@@ -355,6 +367,23 @@ namespace face_sdk_3divi
     const Context Context::operator[](const std::string& key) const
     {
         return (**this)[key].getContextPtr();
+    }
+
+    Context& Context::startIterate()
+    {
+        iterationIndex = 0;
+
+        return *this;
+    }
+
+    Context Context::next()
+    {
+        if (iterationIndex >= size())
+        {
+            throw py::stop_iteration();
+        }
+
+        return (*this)[iterationIndex++];
     }
 
     void Context::operator =(const py::str& value)

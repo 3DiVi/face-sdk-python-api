@@ -4,6 +4,7 @@
 #include <pybind11/stl.h>
 
 #include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 
 #include <pbio/Context.h>
 
@@ -33,6 +34,7 @@ namespace face_sdk_3divi
 
     private:
         std::shared_ptr<pbio::Context> implementation;
+        size_t iterationIndex;
 
     private:
         static pbio::Context parsePythonBytes(const py::bytes& data);
@@ -51,7 +53,9 @@ namespace face_sdk_3divi
 
         Context(const py::bytes& data);
 
-        Context(uint8_t* data, int32_t width, int32_t height, Context::Format format = Context::Format::FORMAT_BGR, int32_t baseAngle = 0);
+        Context(py::bytes& data, int32_t width, int32_t height, Context::Format format = Context::Format::FORMAT_BGR, int32_t baseAngle = 0);
+
+        Context(py::array_t<uint8_t> data, int32_t width, int32_t height, Context::Format format = Context::Format::FORMAT_BGR, int32_t baseAngle = 0);
 
         Context(const std::string& pathToJsonFile);
 
@@ -121,7 +125,7 @@ namespace face_sdk_3divi
 
         DynamicTemplateIndex getDynamicTemplateIndex() const;
 
-        std::variant<py::handle, py::float_, ContextTemplate, DynamicTemplateIndex> getValue() const;
+        std::variant<std::string, py::handle, py::float_, ContextTemplate, DynamicTemplateIndex> getValue() const;
 
         std::vector<std::string> getKeys();
 
@@ -132,6 +136,10 @@ namespace face_sdk_3divi
         const Context operator[](int64_t index) const;
 
         const Context operator[](const std::string& key) const;
+
+        Context& startIterate();
+
+        Context next();
 
         void operator =(const py::str& value);
 
