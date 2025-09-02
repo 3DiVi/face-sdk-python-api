@@ -37,7 +37,9 @@ jobs:
               mv ../includeFaceSDK ./include
 
         - name: Install Python
-          run: choco install python${{ matrix.python-versions }} -y
+          run: |
+              choco install python${{ matrix.python-versions }} -y
+              refreshenv
 
         - name: Install build
           run: pip install build
