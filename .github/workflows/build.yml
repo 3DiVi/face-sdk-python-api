@@ -41,6 +41,7 @@ jobs:
               choco install python${{ matrix.python-versions[0] }} -y
               Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
               refreshenv
+              python --version
 
         - name: Install build
           run: python${{ matrix.python-versions[1] }} -m pip install build
