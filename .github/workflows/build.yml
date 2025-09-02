@@ -5,7 +5,11 @@ on:
     tags:
         - "v*"
   workflow_dispatch:
-        
+  
+  
+env:
+  FACE_SDK_TAG: v3.27.0    
+
 
 jobs:
     windows-build:
@@ -22,6 +26,7 @@ jobs:
           with:
             repository: 3DiVi/face-sdk
             path: FaceSDK
+            ref: ${{ env.FACE_SDK_TAG }}
 
         - name: Remove other files from FaceSDK
           shell: bash
@@ -61,6 +66,7 @@ jobs:
           with:
             repository: 3DiVi/face-sdk
             path: FaceSDK
+            ref: ${{ env.FACE_SDK_TAG }}
 
         - name: Remove other files from FaceSDK
           shell: bash

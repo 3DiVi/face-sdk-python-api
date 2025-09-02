@@ -7,9 +7,10 @@ set(PYBIND11_TAG v3.0.0)
 if (UNIX)
     set(PYTHON_EXECUTABLE /usr/bin/python3 CACHE STRING "Path to Python executable")
 else()
-    find_package(Python3 REQUIRED)
+    find_package(Python REQUIRED)
 
-    set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE} CACHE STRING "Path to Python executable")
+    set(PYTHON_EXECUTABLE ${Python_EXECUTABLE} CACHE STRING "Path to Python executable")
+    set(PYBIND11_FINDPYTHON OFF)
 endif()
 set(FACE_SDK_INCLUDE_PATH "FaceSDK/include" CACHE STRING "Path to include directory")
 

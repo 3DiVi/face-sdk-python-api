@@ -1,0 +1,5 @@
+# Visual Studio
+.vs/
+
+# Python venv
+.venv/
