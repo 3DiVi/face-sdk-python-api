@@ -37,7 +37,10 @@ jobs:
               mv ../includeFaceSDK ./include
 
         - name: Install Python
-          run: choco install python${{ matrix.python-versions[0] }} -y
+          run: |
+              choco install python${{ matrix.python-versions[0] }} -y
+              Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
+              refreshenv
 
         - name: Install build
           run: python${{ matrix.python-versions[1] }} -m pip install build
