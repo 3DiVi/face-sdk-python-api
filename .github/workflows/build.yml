@@ -16,7 +16,7 @@ jobs:
       runs-on: windows-latest
       strategy:
         matrix:
-            python-versions: [38, 39, 310, 311, 312, 313]
+            python-versions: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.13t"]
 
       steps:
         - uses: actions/checkout@v4
@@ -37,27 +37,16 @@ jobs:
               mv ../includeFaceSDK ./include
 
         - name: Install Python
-          run: |
-              choco install python${{ matrix.python-versions }} -y
-              Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
-              refreshenv
-              python --version
-              python -m pip install --upgrade pip
-              python -m pip install build
-              python -m build
+          uses: actions/setup-python@v5
+          with:
+            python-version: "${{ matrix.python-versions }}"
 
-        # - name: Install build
-        #   run: |
-        #       python --version
-        #       python -m venv .venv
-        #       .\venv/Scripts/activate
-        #       python -m pip install build
+        - name: Install build
+          run: pip install build
 
-        # - name: Build
-        #   shell: cmd
-        #   run: |
-        #       .\venv/Scripts/activate
-        #       python -m build
+        - name: Build
+          shell: cmd
+          run: python -m build
 
         - name: Upload artifacts
           uses: actions/upload-artifact@v4
