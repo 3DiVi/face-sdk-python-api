@@ -69,7 +69,7 @@ else()
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 
             COMMAND ${PYTHON_EXECUTABLE} -m venv .venv
-            COMMAND .venv/bin/python -m pip install pybind11-stubgen \"numpy<=1.26.4\"
+            COMMAND .venv/bin/python -m pip install pybind11-stubgen numpy
             COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/*.so ${CMAKE_BINARY_DIR}/.venv/lib/python3.${PYTHON_MINOR_VERSION}/site-packages
             COMMAND ${CMAKE_BINARY_DIR}/.venv/bin/pybind11-stubgen -o ${CMAKE_BINARY_DIR} ${PROJECT_NAME}
             COMMAND ${CMAKE_COMMAND} -E rm -rf .venv
@@ -81,7 +81,7 @@ else()
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 
             COMMAND ${PYTHON_EXECUTABLE} -m venv .venv
-            COMMAND .venv/Scripts/python -m pip install pybind11-stubgen \"numpy<=1.26.4\"
+            COMMAND .venv/Scripts/python -m pip install pybind11-stubgen numpy
             COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${CMAKE_BINARY_DIR}/.venv/Lib/site-packages
             COMMAND ${CMAKE_BINARY_DIR}/.venv/Scripts/pybind11-stubgen -o ${CMAKE_BINARY_DIR} ${PROJECT_NAME}
             COMMAND ${CMAKE_COMMAND} -E rm -rf .venv
