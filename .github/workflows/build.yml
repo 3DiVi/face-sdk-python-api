@@ -16,7 +16,7 @@ jobs:
       runs-on: windows-latest
       strategy:
         matrix:
-            python-versions: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+            python-versions: [38, 39, 310, 311, 312, 313]
 
       steps:
         - uses: actions/checkout@v4
@@ -37,9 +37,7 @@ jobs:
               mv ../includeFaceSDK ./include
 
         - name: Install Python
-          uses: actions/setup-python@v5
-          with:
-            python-version: "${{ matrix.python-versions }}"
+          run: choco install python${{ matrix.python-versions }} -y
 
         - name: Install build
           run: pip install build

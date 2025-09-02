@@ -1,5 +1,9 @@
 # Visual Studio
 .vs/
+out/
 
 # Python venv
 .venv/
+
+# Build
+dist/
